@@ -23,20 +23,23 @@ func AddConsumer(ctx context.Context, client *kong.Client, username string, cust
 	return createdConsumer, nil
 }
 
-// func ListAllConsumers(ctx context.Context) ([]*kong.Consumer, error) {
-// 	return consumerService.ListAll(ctx)
-// }
+func ListConsumers(ctx context.Context, client *kong.Client) ([]*kong.Consumer, error) {
+	return client.Consumers.ListAll(ctx)
+}
 
-// func ListConsumers(ctx context.Context, size int, offset string, tags []*string, matchall bool) ([]*kong.Consumer, *kong.ListOpt, error) {
-// 	opts := &kong.ListOpt{
-// 		Size:         size,
-// 		Offset:       offset,
-// 		Tags:         tags,
-// 		MatchAllTags: matchall,
-// 	}
-// 	return consumerService.List(ctx, opts)
-// }
+func DeleteConsumer(ctx context.Context, client *kong.Client, consumer string) error {
+	return client.Consumers.Delete(ctx, &consumer)
+}
 
+func UpdateConsumer(ctx context.Context, client *kong.Client, consumer *kong.Consumer) (*kong.Consumer, error) {
+	return client.Consumers.Update(ctx, consumer)
+}
+func ListConsumersFiltered(ctx context.Context, client *kong.Client, tags []*string) ([]*kong.Consumer, error) {
+	consumers, _, err := client.Consumers.List(ctx, &kong.ListOpt{Tags: tags})
+	return consumers, err
+}
+
+// GetConsumer returns a consumer by name or custom id
 func GetConsumer(ctx context.Context, client *kong.Client, consumer string, custom string) (*kong.Consumer, error) {
 	if consumer != "" {
 		return client.Consumers.Get(ctx, &consumer)
