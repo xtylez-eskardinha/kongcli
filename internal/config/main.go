@@ -100,9 +100,8 @@ func ListServers() error {
 	if err != nil {
 		return err
 	}
-
+	fmt.Println("--------------------------------")
 	for name, server := range config.Servers {
-		fmt.Println("--------------------------------")
 		fmt.Printf("Name: %s\n", name)
 		if server.Url != "" {
 			fmt.Printf("URL: %s\n", server.Url)
@@ -110,6 +109,8 @@ func ListServers() error {
 		if server.User != "" {
 			fmt.Printf("User: %s\n", server.User)
 		}
+		fmt.Println("--------------------------------")
+
 	}
 
 	return nil
