@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"kongcli/cmd"
 	"kongcli/internal/config"
+	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -31,24 +32,81 @@ var addServer = &cobra.Command{
 	Short:     "Adds a server to config",
 	ValidArgs: []string{"user", "pass", "url", "name"},
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Adding to config")
 		if url == "" {
-			panic("No URL given, exiting...")
+			log.Fatal("No URL given, exiting...")
 		}
 		if name == "" {
-			panic("No name given, exiting...")
+			log.Fatal("No name given, exiting...")
 		}
-		config.AddToConfig(name, url, user, password)
+		err := config.AddToConfig(name, url, user, password)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("Added %s to config\n", name)
+	},
+}
+
+var deleteServer = &cobra.Command{
+	Use:       "rm",
+	Short:     "Deletes a server from config",
+	ValidArgs: []string{"name"},
+	Run: func(cmd *cobra.Command, args []string) {
+
+		for _, arg := range args {
+			if arg == "" {
+				continue
+			}
+			err := config.DeleteFromConfig(arg)
+			if err != nil {
+				log.Printf("Error deleting %s: %v", arg, err)
+				continue
+			}
+			fmt.Printf("Deleted %s from config\n", arg)
+		}
+
+		if len(args) == 0 && name == "" {
+			log.Fatal("No names given to delete, exiting...")
+		}
+	},
+}
+
+var listServers = &cobra.Command{
+	Use:   "ls",
+	Short: "Lists all servers in config",
+	Run: func(cmd *cobra.Command, args []string) {
+		err := config.ListServers()
+		if err != nil {
+			log.Fatal(err)
+		}
+	},
+}
+
+var setContext = &cobra.Command{
+	Use:       "set",
+	Short:     "Sets the current context",
+	ValidArgs: []string{"name"},
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) == 0 {
+			log.Fatal("No context name provided as argument, exiting...")
+		}
+		err := config.SetContext(args[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("Set context to %s\n", args[0])
 	},
 }
 
 func init() {
 	cmd.RootCmd.AddCommand(configCmd)
+	configCmd.AddCommand(addServer)
+	configCmd.AddCommand(deleteServer)
+	configCmd.AddCommand(listServers)
+	configCmd.AddCommand(setContext)
 	addServer.PersistentFlags().StringVarP(&name, "name", "n", "", "Name for the server")
 	addServer.PersistentFlags().StringVarP(&user, "user", "u", "", "Username for the auth")
 	addServer.PersistentFlags().StringVarP(&password, "pass", "p", "", "Password for the user auth")
 	addServer.PersistentFlags().StringVarP(&url, "url", "U", "", "URL for the kong server")
-
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command

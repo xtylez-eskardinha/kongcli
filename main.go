@@ -6,6 +6,7 @@ package main
 
 import (
 	"kongcli/cmd"
+	_ "kongcli/cmd/config"
 	_ "kongcli/cmd/consumer"
 	_ "kongcli/cmd/route"
 )

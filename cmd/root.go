@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"context"
+	"kongcli/internal/config"
 	"os"
 
 	"github.com/spf13/cobra"
